@@ -34,6 +34,17 @@ non-redistributable, and keep it out of the repository (see `.gitignore`).
 If data comes from human subjects or contains personal information, describe
 how consent was obtained.
 
+At this stage the framework does not use data for training. However, we decided to test it on a sample of statutory code provisions sampled from the Swiss civil code, in all languages included in the SwissGov-RSD dataset. Therefore we built records paired in IT-EN, DE-EN, FR-EN. Dataset pairs are split as follows: 
+
+| Destination language    | Sample |
+|-------------------------|--------|
+| de                      |        |
+| fr                      |        |
+| en                      |        |
+| it                      |        |
+
+We stress that the sampled articles are not an official publication. Only the publication issued by the Federal Chancellery is authoritative.
+
 ## 5. Evaluation
 
 How you measured success: task, metric, baseline.
