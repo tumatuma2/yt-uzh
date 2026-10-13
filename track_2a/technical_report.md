@@ -11,7 +11,7 @@ challenge and add required information here.
 
 ## 1. Summary
 
-The problem, your approach, and the headline result in one paragraph.
+Given the RSD research challenge introduced as "Given two related documents in different languages, predict for each token how strongly its meaning differs from the corresponding content in the other document. Systems should identify both symmetric differences and asymmetric ones such as additions and omissions.". Given as system constraint the usage of Apertus model, limited availability of GPU for training operations, and our previous limited knowledge of the aforementioned challenge. We decided to tackle the problem by using a deterministic set of rules for token mapping and a  pretrained Apertus forecast model. We tested our framework at a custom dataset of statutory code provisions and the provided SwissGov-RSD dataset. Preliminary results show that...
 
 ## 2. Architecture
 
