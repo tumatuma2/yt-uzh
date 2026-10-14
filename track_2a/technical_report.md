@@ -4,9 +4,9 @@ A deeper write-up than the README: what you built, how it works, and what the
 numbers say. Also check the specific submission requirements for your Academia
 challenge and add required information here.
 
-- **Track:** `Track 2A — challenge name`
+- **Track:** Track 2A - SwissGov-RSD: Detecting Cross-Lingual Semantic Differences in Swiss Government Websites
 - **Event:** Online
-- **Team:** `team name` — `member`, `member`, `member`
+- **Team:** YT - Dario Fagotto, Eleni Gkovedarou, Marco Tumaini
 - **Demo:** `link to video, deployment, or notebook`
 
 ## 1. Summary
@@ -44,6 +44,7 @@ At this stage the framework does not use data for training. However, we decided 
 | it                      |        |
 
 We stress that the sampled articles are not an official publication. Only the publication issued by the Federal Chancellery is authoritative.
+Assuming that the text in the two languages is identical in meaning. The objective is to generate candidate words (or word sets) conditioned on a target text and to determine whether each generated candidate corresponds to the aligned word in the source text. Every generated word by Apertus is accompanied by a score that quantifies the degree of fit (i.e., the quality of the correspondence or alignment).
 
 ## 5. Evaluation
 
