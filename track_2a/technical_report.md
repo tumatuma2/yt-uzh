@@ -43,7 +43,6 @@ At this stage the framework does not use data for training. However, we decided 
 | Table 3                        |        |
 | Table 4                        |        |
 
-We stress that the sampled articles are not an official publication. Only the publication issued by the Federal Chancellery is authoritative.
 Assuming that the text in the two languages is identical in meaning. The objective is to generate candidate words (or word sets) conditioned on a target text and to determine whether each generated candidate corresponds to the aligned word in the source text. Every generated word by Apertus is accompanied by a score that quantifies the degree of fit (i.e., the quality of the correspondence or alignment).
 
 ## 5. Evaluation
