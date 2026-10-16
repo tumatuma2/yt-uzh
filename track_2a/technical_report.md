@@ -7,7 +7,6 @@ challenge and add required information here.
 - **Track:** Track 2A - SwissGov-RSD: Detecting Cross-Lingual Semantic Differences in Swiss Government Websites
 - **Event:** Online
 - **Team:** YT - Dario Fagotto, Eleni Gkovedarou, Marco Tumaini
-- **Demo:** `link to video, deployment, or notebook`
 
 ## 1. Summary
 
@@ -17,10 +16,7 @@ Given the system constraint the usage of Apertus model, limited availability of 
 
 We decided to tackle the problem by using a deterministic set of rules for token mapping and a pretrained Apertus forecast model.
 
-We tested our framework at a custom dataset of statutory code provisions and the provided SwissGov-RSD dataset.
-
-*@TODO*
-Preliminary results show that...
+We tested our framework at a custom dataset of statutory code provisions. Due to time constraints, we could not test it on the SwissGov-RSD data set. 
 
 ## 1.5 Idea and compromises
 
@@ -115,8 +111,7 @@ How you measured success: task, metric, baseline.
 
 ## 6. Limitations
 
-*@TODO*
-Where it breaks, what you did not test, and known failure modes.
+At this stage we could not test the framework on SwissGov-RSD.
 
 ## 7. Reproducibility
 
@@ -126,8 +121,8 @@ exact commit. `make run` should do the rest.
 
 ## 8. Next steps
 
-*@TODO*
-What you would build with another month.
+1. Test the framework on SwissGov-RSD;
+2. Performance comparison with the next Apertus release. 
 
 ## License
 
