@@ -18,23 +18,23 @@ We tested our framework on a custom dataset of statutory code provisions. Due to
 
 ### Idea and compromises
 
-The idea at the base of this project is to approach the problem as a very constrained translation attempt filling text trying to autocomplete small snippets of a text using its translation.
+The idea at the base of this project is to approach the problem as a very constrained translation attempt that fills in text by trying to autocomplete small snippets of a text using its translation.
 
 This solution frames the problem as a *FIM (fill in the middle)* task providing the text in both languages and hiding only small semantic parts of it to be reconstructed, then reading from the internal probabilities of the model what is the accuracy of the translation.
 
-This would require a model that is aware of *FIM* tasks; unfortunately Apertus is not trained for these tasks as stock and we didn't have access until very late to infrastructure that would allow for the finetuning required; from an efficiency point of view moreover a diffusion style model would be probably more approriate; becasue while KV cache definitely helps with the huge prefixes shared for the small completions, the access of this through APIs and reversing the problem (for simmetry) incur in very high number of requests via API.
+This would require a model that is aware of *FIM* tasks; unfortunately Apertus is not trained for these tasks as stock and we didn't have access until very late to infrastructure that would allow for the finetuning required; from an efficiency point of view a diffusion style model would be probably more appropriate; because while KV cache definitely helps with the huge prefixes shared for the small completions, the access of this through APIs and reversing the problem (for symmetry) incurs a very high number of requests via API.
 
-We proceeded with Apertus 70B since the initial tests showed that the task was not understood well by the 8B model without training; but with fine tuning we think 8B will probably work as well.
+We proceeded with Apertus 70B since the initial tests showed that the task was not understood well by the 8B model without training; but with fine-tuning we think 8B will probably work as well.
 
 ## 2. Architecture
 
 The pipeline for the task consists in multiple steps:
 
-- **(A)** Splitting the text in semantic blocks that (while being granular) are long and meaningful enough to make sense for the LLM as concepts
-- **(B)** For each of these blocks (in both texts) frame the problem as an autocompletion task (with some regards to have the longest possible shared prefix) aware of the original text
-- **(C)** Feed the model the task AND the answer while recording log probabilities of the assistent tokens (including EOS)
-- **(D)** Compute the total probability of that answer adding the logprobs together (possibly in the future also adjusting the value depending on how the attention in the LLM distributed over the original/translated text to make sure it's using the base text and not inventing).
-- **(E)** Distribute the results from those probabilities in the sematic blocks back into the standard tokenization provided by the dataset
+- **(A)** Splitting the text into semantic blocks that (while being granular) are long and meaningful enough to make sense for the LLM as concepts
+- **(B)** For each of these blocks (in both texts) frame the problem as an autocompletion task (with some regard to having the longest possible shared prefix) aware of the original text
+- **(C)** Feed the model the task AND the answer while recording log probabilities of the assistant tokens (including EOS)
+- **(D)** Compute the total probability of that answer by adding the logprobs together (possibly in the future also adjusting the value depending on how the attention in the LLM is distributed over the original/translated text to make sure it’s using the base text and not inventing)
+- **(E)** Distribute the results from those probabilities in the semantic blocks back into the standard tokenization provided by the dataset
 
 *@TODO*
 (Components, data flow, and where each one runs. Put diagrams in `docs/` and
@@ -82,7 +82,7 @@ An important part was that assistant should emit if possible only the actual mid
 
 *Found under `src/assistent_prob:getAssistentProb`*
 
-The model is used as a probability checker, so the prompt is sent with already the answer included, and the logprobs of the prompt itself are logged *(vllm prompt_logprobs)*; from those the ones that take part in the answer are accounted for as conjoined probability, so in the example below the sum of logrpobs marked with `*`:
+The model is used as a probability checker, so the prompt is sent with already the answer included, and the logprobs of the prompt itself are logged *(vllm prompt_logprobs)*; from those the ones that take part in the answer are accounted for as joint probability, so in the example below the sum of logprobs marked with `*`:
 
 ```
   ... (prompt)
@@ -93,23 +93,21 @@ The model is used as a probability checker, so the prompt is sent with already t
 * <|assistant_end|>
 ```
 
-If the snipped removed is short enough (but still contains meaning) the LLM should be forced to fill in using also the original text, and the set of possible valid translations should be sufficiently short to avoid the probabilities diluting too much.
+If the snippet removed is short enough (but still contains meaning), the LLM should be forced to fill in also using the original text, and the set of possible valid translations should be sufficiently short to avoid the probabilities being diluted too much.
 
 ### D. Correcting for attention and vagueness of fill-ins
 
-This part was not explored much in this hackaton due to time constraints and issues with access to internals of the model/GPU hardware; numbers are used as is from the logprobs.
+This part was not explored much in this hackathon due to time constraints and issues with access to model/GPU hardware; numbers are used as is from the logprobs.
 
 ### E. Split/merge to result labels
 
 *Found under `src/work_on_dataset/segment_matching:shared_segments`*
 
-Due to different scopes of segmentation in the dataset and in our approach we had to move our values back to the original splits; our splits at the moment separate by meaning so in some cases compound word could be split; but the most common case is for common phrases and other constructs to have a single result for us, and multiple labels for the dataset.
+Due to different scopes of segmentation in the dataset and in our approach, we had to move our values back to the original splits; our splits at the moment separate by meaning, so in some cases compound words could be split; but the most common case is for common phrases and other constructs to have a single result for us, and multiple labels for the dataset.
 
-In this approach we defined a match across the full text devoided of any whitespace and associated for each of our tokens a list of affected label positions; then we just distribute the results into the dataset tokenization, averaging in case there are multiple scores for the same token (compound words); taking worse case is another valid option, although this combination happens so rarely, that any change in this policy would result in negligible differences.
+In this approach we defined a match across the full text devoid of any whitespace and associated with each of our tokens a list of affected label positions; then we just distribute the results into the dataset tokenization, averaging in case there are multiple scores for the same token (compound words); taking worst case is another valid option, although this combination happens so rarely that any change in this policy would result in negligible differences.
 
 ## 3. Use of Apertus
-
-*@TODO*
 
 - **Model:** `swiss-ai/Apertus-v1.5-70B`
 - **How it is used:** forced inference logprobs *(vllm `prompt_logprobs`)*
@@ -125,7 +123,7 @@ LLM_API_KEY=<key>
 
 ## 4. Data
 
-At this stage the framework does not use data for training. However, we decided to test it on a sample of statutory code provisions sampled from the Swiss civil code, in all languages included in the SwissGov-RSD dataset. Therefore we built records paired in IT-EN, DE-EN, FR-EN. Then we generated four tables, obtained from the articles sample, that per each record have a text in a language, and the correspondent in another language pair, splitted as prefix, middle (the text Apertus will generate), and a suffix. The generation is based on a seed id that we share in the following table:
+At this stage, the framework does not use data for training. However, we decided to test it on a sample of statutory code provisions sampled from the Swiss civil code, in all languages included in the SwissGov-RSD dataset. Therefore, we built records paired in IT-EN, DE-EN, FR-EN. Then we generated four tables, obtained from the articles sample, that for each record have a text in a language, and the corresponding text in the other language of the pair, split as prefix, middle (the text Apertus will generate), and a suffix. The generation is based on a seed ID that we share in the following table:
 
 | Table ID                       | Seed                  |
 |--------------------------------|-----------------------|
@@ -156,17 +154,6 @@ On the same four tables we run Monte-Carlo simulations, investigating the follow
 | Q2                             | -10.60                            |
 | Q3                             | -10.13                            |
 | Q4                             | -8.80                             |
-
-**B. SwissGov-RSD**
-
-*@TODO*
-
-How you measured success: task, metric, baseline.
-
-| Setup    | Metric | Result |
-|----------|--------|--------|
-| Baseline |        |        |
-| Ours     |        |        |
 
 ## 6. Limitations
 
