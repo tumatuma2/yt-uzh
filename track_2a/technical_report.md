@@ -22,7 +22,7 @@ We tested our framework at a custom dataset of statutory code provisions and the
 *@TODO*
 Preliminary results show that...
 
-## 1.5 Idea and compromises
+### Idea and compromises
 
 The idea at base of this project is to approach the problem as a very constrained translation attempt filling text trying to autocomplete small snippets of a text using its translation.
 
@@ -48,9 +48,70 @@ reference them here.)
 
 ### A. Semantic-unit segmentation
 
+*Found under `src/phrase_segmenter:Segmenter`*
+
 As a preprocessing step, we segmented each document into short, linguistically motivated units to support the subsequent cross-lingual comparison. We used a separate, languagespecific spaCy pipeline for each language. Each pipeline uses the corresponding language model and adapted tokenization, part-of-speech tagging, dependency parsing, named-entity recognition, fixed-expression lists, and other rules specific to the linguistic properties of that language. The segmentation identifies expressions that are best treated as a unit, including multiword expressions, named entities, dates and numerical expressions, proper names, noun compounds, determiner-noun groups, auxiliary-verb constructions, infinitives, verb-particle constructions, and selected prepositional constructions. Domain-specific fixed expressions, such as “in accordance with”, “federal law”, “come into force” in the English pipeline, were explicitly preserved as single units. The pipelines follow the same general principles, but
 their rules and expression lists are adapted to the linguistic characteristics of each language. The segmentation also accounts for the semantic importance of individual words. Negation and modal verbs are kept separate from surrounding phrase units because they can substantially change the interpretation of a proposition. Negation changes its polarity, while modal verbs encode obligation, permission, possibility, or necessity. These distinctions are especially important in legal and administrative texts, where small linguistic differences can have significant consequences for meaning. Adjectives and adverbs are generally kept separate as well, to make their individual contributions easier to identify, unless they form
 part of a predefined fixed expression. To obtain a consistent segmentation, the pipeline identifies candidate spans and selects them in order of priority, preventing overlaps between units. Any tokens not assigned to a multiword unit remain as individual units. The resulting sequence preserves important linguistic expressions while allowing potentially meaningful differences to be localized more precisely than with sentence-level comparison alone.
+
+### B. Autocompletion prompt *(FIM)*
+
+*Found under `src/work_on_dataset/llm_functions:genPrompt`*
+
+We tried optimizing the prompt with GEPA, but expecially using Apertus 1.5 70B as reflection agent the results were always low quality and iteration was stalling; so we ended up with a simple prompt in similar style of `dspy` library chat fallback, that resulted in better quality (of generated FIM completions, not tested on the task with the logprobs etc...) than using either tools or other more complex prompting:
+
+**system:**
+```
+Fill the appropriate part of speach in the translated text so it mantains the same meaning as original. Do not output any explaination or text or extra content except the required filling words
+```
+
+**user:**
+```
+[ ## original text ## ]
+{x['original']}
+
+[ ## new text prefix ## ]
+{x['new_prefix']}
+
+[ ## new text suffix ## ]
+{x['new_suffix']}
+```
+
+**assistant:**
+```
+{x['new_middle']}
+```
+
+An important part was that assistant should emit if possible only the actual middle prediction and not an explaination of what should be done, or full description of the task (tendency that is very strong in the model). Fine tuning with this goal would be a very interesting and useful task, and that's the main reason for the *Fedlex* dataset, to be used as correct example text from training; example of errors at this point would not give a good direction for the training at this step, and if used should probably be included later to check attention of the model (missing text in original context, and model allucinating fill-ins).
+
+### C. Forced logprobs
+
+*Found under `src/assistent_prob:getAssistentProb`*
+
+The model is used as a probability checker, so the prompt is sent with already the answer included, and the logprobs of the prompt itself are logged *(vllm prompt_logprobs)*; from those the ones that take part in the answer are accounted for as conjoined probability, so in the example below the sum of logrpobs marked with `*`:
+
+```
+  ... (prompt)
+  <|assistant_start|>
+* TK1
+* TK2
+* ...
+* <|assistant_end|>
+```
+
+If the snipped removed is short enough (but still contains meaning) the LLM should be forced to fill in using also the original text, and the set of possible valid translations should be sufficiently short to avoid the probabilities diluting too much.
+
+### D. Correcting for attention and vagueness of fill-ins
+
+This part was not explored much in this hackaton due to time constraints and issues with access to internals of the model/GPU hardware; numbers are used as is from the logprobs.
+
+### E. Split/merge to result labels
+
+*Found under `src/work_on_dataset/segment_matching:shared_segments`*
+
+Due to different scopes of segmentation in the dataset and in our approach we had to move our values back to the original splits; our splits at the moment separate by meaning so in some cases compound word could be split; but the most common case is for common phrases and other constructs to have a single result for us, and multiple labels for the dataset.
+
+In this approach we defined a match across the full text devoided of any whitespace and associated for each of our tokens a list of affected label positions; then we just distribute the results into the dataset tokenization, averaging in case there are multiple scores for the same token (compound words); taking worse case is another valid option, although this combination happens so rarely, that any change in this policy would result in negligible differences.
 
 ## 3. Use of Apertus
 

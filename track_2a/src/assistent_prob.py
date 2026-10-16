@@ -33,7 +33,7 @@ class TokenChoice(TypedDict):
 
 def getTokenPromptProbChoices(llm: MyLLLM, messages: list[Message]) -> list[TokenChoice]:
     global AssistentProb_ChatParams
-    resp = llm.completion(messages, **AssistentProb_ChatParams) # @NOTE: I know for now it warns of truncation very likely even tho it works
+    resp = llm.completion(messages, **AssistentProb_ChatParams)
     res: list[TokenChoice] = []
     for plps, tk in zip(resp.prompt_logprobs, resp.prompt_token_ids, strict=True):
         if plps is None:
