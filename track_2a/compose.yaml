@@ -1,0 +1,14 @@
+services:
+  my-container:
+    image: ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+    working_dir: /app
+    volumes:
+      - ./:/app
+    entrypoint:
+      - /bin/sh
+      - -ec
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends make
+        echo "Make installed, container ready"
+        exec sleep infinity

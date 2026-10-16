@@ -1,0 +1,50 @@
+
+digraph Architecture {
+    graph [
+        rankdir=TB,
+        bgcolor="transparent",
+        nodesep=0.35,
+        ranksep=0.55,
+        splines=polyline
+    ];
+
+    node [
+        shape=box,
+        style="rounded,filled",
+        fillcolor="#EAF2FF",
+        color="#7196C8",
+        fontname="Helvetica",
+        fontsize=11,
+        margin="0.16,0.10"
+    ];
+
+    edge [color="#65758B", arrowsize=0.7];
+
+    input [label="Original + Translated Texts", fillcolor="#E5E7EB"];
+
+    A [label="A · Semantic Segmentation\nspaCy / language-specific rules"];
+    B [label="B · FIM Prompt Construction\nOriginal + Prefix + Suffix + Middle"];
+    C [label="C · Forced Logprobs\nvLLM prompt_logprobs"];
+    D [label="D · Score Aggregation\nSum answer-token logprobs\n(including EOS)"];
+    E [label="E · Token Alignment\nSplit / merge + average scores"];
+
+    output [label="Dataset Token Scores\n/ Labels", fillcolor="#DDF5E5"];
+
+    input -> A -> B -> C -> D -> E -> output;
+
+    dataset [
+        label="Dataset Tokenization",
+        fillcolor="#E5E7EB"
+    ];
+    dataset -> E;
+
+    model [
+        label="LLM (vLLM)",
+        shape=cylinder,
+        fillcolor="#FFF0D6",
+        color="#D2A45A"
+    ];
+    model -> C [style=dashed];
+
+    { rank=same; C; model; }
+}

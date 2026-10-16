@@ -11,5 +11,11 @@ def dataitem2example(item):
 def get_validation_dataset():
     print('Loading dataset...')
     validarion_dataset = [ dataitem2example(item) for item in load_dataset('ZurichNLP/SwissGov-RSD', split='validation') ]
-    print(f'Loaded {len(validarion_dataset)} entries from example table')
+    print(f'Loaded {len(validarion_dataset)} entries from table')
     return validarion_dataset
+
+def get_test_dataset():
+    print('Loading dataset... ### TEST SPLIT: DO NOT USE FOR TRAINING ###')
+    test_dataset = [ dataitem2example(item) for item in load_dataset('ZurichNLP/SwissGov-RSD', split='test') ]
+    print(f'Loaded {len(test_dataset)} entries from table')
+    return test_dataset
