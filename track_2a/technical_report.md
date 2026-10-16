@@ -122,7 +122,7 @@ exact commit. `make run` should do the rest.
 ## 8. Next steps
 
 1. Test the framework on SwissGov-RSD;
-2. Performance comparison with the next Apertus release. 
+2. Performance comparison with the next Apertus model release. 
 
 ## License
 
