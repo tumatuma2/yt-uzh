@@ -15,8 +15,11 @@ Given the RSD research challenge introduced as "Given two related documents in d
 
 ## 2. Architecture
 
-Components, data flow, and where each one runs. Put diagrams in `docs/` and
-reference them here.
+A. Semantic-unit segmentation
+
+As a preprocessing step, we segmented each document into short, linguistically motivated units to support the subsequent cross-lingual comparison. We used a separate, languagespecific spaCy pipeline for each language. Each pipeline uses the corresponding language model and adapted tokenization, part-of-speech tagging, dependency parsing, named-entity recognition, fixed-expression lists, and other rules specific to the linguistic properties of that language. The segmentation identifies expressions that are best treated as a unit, including multiword expressions, named entities, dates and numerical expressions, proper names, noun compounds, determiner-noun groups, auxiliary-verb constructions, infinitives, verb-particle constructions, and selected prepositional constructions. Domain-specific fixed expressions, such as “in accordance with”, “federal law”, “come into force” in the English pipeline, were explicitly preserved as single units. The pipelines follow the same general principles, but
+their rules and expression lists are adapted to the linguistic characteristics of each language. The segmentation also accounts for the semantic importance of individual words. Negation and modal verbs are kept separate from surrounding phrase units because they can substantially change the interpretation of a proposition. Negation changes its polarity, while modal verbs encode obligation, permission, possibility, or necessity. These distinctions are especially important in legal and administrative texts, where small linguistic differences can have significant consequences for meaning. Adjectives and adverbs are generally kept separate as well, to make their individual contributions easier to identify, unless they form
+part of a predefined fixed expression. To obtain a consistent segmentation, the pipeline identifies candidate spans and selects them in order of priority, preventing overlaps between units. Any tokens not assigned to a multiword unit remain as individual units. The resulting sequence preserves important linguistic expressions while allowing potentially meaningful differences to be localized more precisely than with sentence-level comparison alone.
 
 ## 3. Use of Apertus
 
