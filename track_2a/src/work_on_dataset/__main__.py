@@ -10,7 +10,7 @@ import dotenv
 import argparse
 ap = argparse.ArgumentParser()
 ap.add_argument('--seed', default='1B3C5D7E9FA1B2C3', help='Seed to use for random picks')
-ap.add_argument('--limit', default=10, help='Number of entries in the dataset to process')
+ap.add_argument('--limit', default=10, type=int, help='Number of entries in the dataset to process')
 ap.add_argument('--test', action='store_true', help='Run on test split')
 ap_data = ap.parse_args()
 
