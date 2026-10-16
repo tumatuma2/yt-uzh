@@ -51,7 +51,7 @@ A. Fedlex data set
 
 We ran four independent Monte-Carlo simulations that randomly sampled same-meaning text pairs and estimated, for each source language, the average probability that a given token is the closest match when English is the target. Because the simulations are independent draws from the same distribution, we simply averaged these per-simulation probability estimates; the resulting mean probability for each source language (German, French, Italian) provides a stable ranking of which language pairs most strongly with English, with French emerging as the strongest on average.
 
-| Destination language           | T1     | T2     | T3     | T4     | 
+| Source Language                | T1     | T2     | T3     | T4     | 
 |--------------------------------|--------|--------|--------|--------|
 | FR                             | 2      |2       | 1      | 1      |
 | DE                             | 1      |3       | 2      | 3      |
