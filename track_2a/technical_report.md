@@ -10,17 +10,15 @@ challenge and add required information here.
 
 ## 1. Summary
 
-Given the RSD research challenge introduced as "Given two related documents in different languages, predict for each token how strongly its meaning differs from the corresponding content in the other document. Systems should identify both symmetric differences and asymmetric ones such as additions and omissions.".
+Given the RSD research challenge introduced as "Given two related documents in different languages, predict for each token how strongly its meaning differs from the corresponding content in the other document. Systems should identify both symmetric differences and asymmetric ones such as additions and omissions."
 
-Given the system constraint the usage of Apertus model, limited availability of GPU for training operations, and our previous limited knowledge of the aforementioned challenge.
+Given the system constraints of the Apertus model, limited availability of GPUs for training operations, and our previous limited knowledge of the aforementioned challenge, we decided to tackle the problem by using a deterministic set of rules for token mapping and a pretrained Apertus forecast model.
 
-We decided to tackle the problem by using a deterministic set of rules for token mapping and a pretrained Apertus forecast model.
-
-We tested our framework at a custom dataset of statutory code provisions. Due to time constraints, we could not test it on the SwissGov-RSD data set. 
+We tested our framework on a custom dataset of statutory code provisions. Due to time constraints, we could not test it on the SwissGov-RSD data set.
 
 ### Idea and compromises
 
-The idea at base of this project is to approach the problem as a very constrained translation attempt filling text trying to autocomplete small snippets of a text using its translation.
+The idea at the base of this project is to approach the problem as a very constrained translation attempt filling text trying to autocomplete small snippets of a text using its translation.
 
 This solution frames the problem as a *FIM (fill in the middle)* task providing the text in both languages and hiding only small semantic parts of it to be reconstructed, then reading from the internal probabilities of the model what is the accuracy of the translation.
 
