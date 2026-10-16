@@ -36,19 +36,26 @@ We proceeded with Apertus 70B since the initial tests showed that the task was n
 
 The pipeline for the task consists in multiple steps:
 
-- Splitting the text in semantic blocks that (while being granular) are long and meaningful enough to make sense for the LLM as concepts
-- For each of these blocks (in both texts) frame the problem as an autocompletion task (with some regards to have the longest possible shared prefix) aware of the original text
-- Feed the model the task AND the answer while recording log probabilities of the assistent tokens (including EOS)
-- Compute the total probability of that answer adding the logprobs together (possibly in the future also adjusting the value depending on how the attention in the LLM distributed over the original/translated text to make sure it's using the base text and not inventing).
-- Distribute the results from those probabilities in the sematic blocks back into the standard tokenization provided by the dataset
+- **(A)** Splitting the text in semantic blocks that (while being granular) are long and meaningful enough to make sense for the LLM as concepts
+- **(B)** For each of these blocks (in both texts) frame the problem as an autocompletion task (with some regards to have the longest possible shared prefix) aware of the original text
+- **(C)** Feed the model the task AND the answer while recording log probabilities of the assistent tokens (including EOS)
+- **(D)** Compute the total probability of that answer adding the logprobs together (possibly in the future also adjusting the value depending on how the attention in the LLM distributed over the original/translated text to make sure it's using the base text and not inventing).
+- **(E)** Distribute the results from those probabilities in the sematic blocks back into the standard tokenization provided by the dataset
 
 *@TODO*
-Components, data flow, and where each one runs. Put diagrams in `docs/` and
-reference them here.
+(Components, data flow, and where each one runs. Put diagrams in `docs/` and
+reference them here.)
+
+### A. Semantic-unit segmentation
+
+As a preprocessing step, we segmented each document into short, linguistically motivated units to support the subsequent cross-lingual comparison. We used a separate, languagespecific spaCy pipeline for each language. Each pipeline uses the corresponding language model and adapted tokenization, part-of-speech tagging, dependency parsing, named-entity recognition, fixed-expression lists, and other rules specific to the linguistic properties of that language. The segmentation identifies expressions that are best treated as a unit, including multiword expressions, named entities, dates and numerical expressions, proper names, noun compounds, determiner-noun groups, auxiliary-verb constructions, infinitives, verb-particle constructions, and selected prepositional constructions. Domain-specific fixed expressions, such as “in accordance with”, “federal law”, “come into force” in the English pipeline, were explicitly preserved as single units. The pipelines follow the same general principles, but
+their rules and expression lists are adapted to the linguistic characteristics of each language. The segmentation also accounts for the semantic importance of individual words. Negation and modal verbs are kept separate from surrounding phrase units because they can substantially change the interpretation of a proposition. Negation changes its polarity, while modal verbs encode obligation, permission, possibility, or necessity. These distinctions are especially important in legal and administrative texts, where small linguistic differences can have significant consequences for meaning. Adjectives and adverbs are generally kept separate as well, to make their individual contributions easier to identify, unless they form
+part of a predefined fixed expression. To obtain a consistent segmentation, the pipeline identifies candidate spans and selects them in order of priority, preventing overlaps between units. Any tokens not assigned to a multiword unit remain as individual units. The resulting sequence preserves important linguistic expressions while allowing potentially meaningful differences to be localized more precisely than with sentence-level comparison alone.
 
 ## 3. Use of Apertus
 
 *@TODO*
+
 - **Model:** `swiss-ai/Apertus-v1.5-70B`
 - **How it is used:** forced inference logprobs *(vllm `prompt_logprobs`)*
 - **Where it runs:** hosted endpoint
@@ -63,21 +70,16 @@ LLM_API_KEY=<key>
 
 ## 4. Data
 
-(What you used, where it came from, and its licence. Flag anything personal or
-non-redistributable, and keep it out of the repository (see `.gitignore`).
-If data comes from human subjects or contains personal information, describe
-how consent was obtained.)
-
 At this stage the framework does not use data for training. However, we decided to test it on a sample of statutory code provisions sampled from the Swiss civil code, in all languages included in the SwissGov-RSD dataset. Therefore we built records paired in IT-EN, DE-EN, FR-EN. Then we generated four tables, obtained from the articles sample, that per each record have a text in a language, and the correspondent in another language pair, splitted as prefix, middle (the text Apertus will generate), and a suffix. The generation is based on a seed id that we share in the following table:
 
-| Table ID                       | Seed   |
-|--------------------------------|--------|
-| Table 1                        |        |
-| Table 2                        |        |
-| Table 3                        |        |
-| Table 4                        |        |
+| Table ID                       | Seed                  |
+|--------------------------------|-----------------------|
+| Table 1                        | 1B3C5D7E9FA1B2C3      |
+| Table 2                        | DEADBEEFCAFEBABE      |
+| Table 3                        | 0123456789ABCDEF      |
+| Table 4                        | F0E1D2C3B4A59687      |
 
-Assuming that the text in the two languages is identical in meaning. The objective is to generate candidate words (or word sets) conditioned on a target text and to determine whether each generated candidate corresponds to the aligned word in the source text. Every generated word by Apertus is accompanied by a score that quantifies the degree of fit (i.e., the quality of the correspondence or alignment).
+Assuming that the text in the two languages is identical in meaning. The objective is to generate candidate words (or word sets) conditioned on a target text and to determine whether each generated candidate corresponds to the aligned word in the source text. Every generated word by Apertus is accompanied by a score that quantifies the degree of fit (i.e., the quality of the correspondence or alignment). Each table can be generated by running `make run_on_fedlex_sample SEED=...`
 
 ## 5. Evaluation
 

@@ -1,5 +1,5 @@
 from functools import cache
-import os
+import os, sys
 from pathlib import Path
 import csv, re
 import random
@@ -14,8 +14,12 @@ from assistent_prob import AssistentProb_ChatParams, getAssistentProb
 THIS_FOLDER = Path(__file__).resolve().parent
 RE_ANY_LETTER = re.compile('[a-zA-Z]')
 
+import argparse
+ap = argparse.ArgumentParser()
+ap.add_argument('--seed', default='A4AA86EA17FC20DC', help='Seed to use for random picks')
+ap_data = ap.parse_args()
 
-RNG_SEED = b'\xA4\xAA\x86\xEA\x17\xFC\x20\xDC'
+RNG_SEED = ap_data.seed
 IN_FILE = DATA_PATH / 'fedlex_sample.csv'
 OUT_FILE = RESULTS_PATH / 'fedlex_sample.csv'
 ENTRIES_COUNT = 160
@@ -25,7 +29,7 @@ HOLES_PER_ENTRY = 4
 dotenv.load_dotenv()
 my_lllm_init() # DO AFTER LOAD DOTENV
 
-seeded_random = random.Random(RNG_SEED)
+seeded_random = random.Random(bytes.fromhex(RNG_SEED))
 
 lmTarget = MyLLLM(
     model=os.environ['LLM_NAME'],
