@@ -60,7 +60,7 @@ part of a predefined fixed expression. To obtain a consistent segmentation, the 
 - **How it is used:** forced inference logprobs *(vllm `prompt_logprobs`)*
 - **Where it runs:** hosted endpoint
 
-For the evaluation itself the only requirement is a `.env` file that points to a `vllm` server, that has the 70B chat model.
+For the evaluation itself the only requirement is the `src/.env` that points to a `vllm` server, that has the 70B chat model.
 
 ```sh
 LLM_NAME=<served-model-name>

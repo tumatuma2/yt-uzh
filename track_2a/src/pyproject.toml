@@ -23,4 +23,8 @@ dependencies = [
 ]
 
 [tool.uv.sources]
+# Needed to run with "chatgpt/*" provider (https://github.com/BerriAI/litellm/pull/41235)
 #litellm = { git = "https://github.com/BerriAI/litellm", rev = "a983b2a5e77f741b719f32f956fac090b5e6c376" }
+
+[tool.uv]
+package = false

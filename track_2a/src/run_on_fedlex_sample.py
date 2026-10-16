@@ -16,7 +16,7 @@ RE_ANY_LETTER = re.compile('[a-zA-Z]')
 
 import argparse
 ap = argparse.ArgumentParser()
-ap.add_argument('--seed', default='A4AA86EA17FC20DC', help='Seed to use for random picks')
+ap.add_argument('--seed', default='1B3C5D7E9FA1B2C3', help='Seed to use for random picks')
 ap_data = ap.parse_args()
 
 RNG_SEED = ap_data.seed
@@ -32,10 +32,11 @@ my_lllm_init() # DO AFTER LOAD DOTENV
 seeded_random = random.Random(bytes.fromhex(RNG_SEED))
 
 lmTarget = MyLLLM(
-    model=os.environ['LLM_NAME'],
+    model='custom/' + os.environ['LLM_NAME'],
 
     **AssistentProb_ChatParams,
 )
+lmTarget.warn_truncation = False
 
 class MyInput(TypedDict):
     original: str

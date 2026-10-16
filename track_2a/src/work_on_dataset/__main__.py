@@ -11,10 +11,13 @@ from .llm_functions import process_side, llm_functions_init, HoleScoreResult
 from .validation_dataset import get_validation_dataset
 import dotenv
 
-THIS_FOLDER = Path(__file__).resolve().parent
-#seeded_rand = random.Random(86442167181706)
-#seeded_rand = random.Random(637450176)
-seeded_rand = random.Random(1786435477635)
+import argparse
+ap = argparse.ArgumentParser()
+ap.add_argument('--seed', default='1B3C5D7E9FA1B2C3', help='Seed to use for random picks')
+ap_data = ap.parse_args()
+
+RNG_SEED = ap_data.seed
+seeded_rand = random.Random(bytes.fromhex(RNG_SEED))
 
 dotenv.load_dotenv()
 llm_functions_init() # Call after load_dotenv

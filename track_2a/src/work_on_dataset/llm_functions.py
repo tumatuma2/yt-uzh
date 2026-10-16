@@ -21,10 +21,11 @@ def llm_functions_init(): # DO AFTER LOAD DOTENV
     my_lllm_init()
 
     lmTarget = MyLLLM(
-        model=os.environ['LLM_NAME'],
+        model='custom/' + os.environ['LLM_NAME'],
 
         **AssistentProb_ChatParams,
     )
+    lmTarget.warn_truncation = False
 
 class MyInput(TypedDict):
     original: str

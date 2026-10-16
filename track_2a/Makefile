@@ -6,4 +6,4 @@ run:
 	@echo "make run is not implemented yet — edit this Makefile"; exit 1
 
 run_on_fedlex_sample:
-    cd src && uv run run_on_fedlex_sample.py $(if $(SEED),--seed $(SEED))
+	cd src && uv run run_on_fedlex_sample.py $(if $(SEED),--seed $(SEED))

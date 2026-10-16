@@ -53,7 +53,10 @@ class MyLLLM:
         self.model = kwargs['model']
         del kwargs['model']
         self.kwargs = kwargs
+        self.warn_truncation = True
     def _check_truncation(self, choices: list[Choices], combined_kwargs: dict[str, Any]) -> None:
+        if not self.warn_truncation:
+            return
         if any(getattr(c, "finish_reason", None) == "length" for c in choices):
             max_tok = combined_kwargs.get("max_tokens") or self.kwargs.get("max_completion_tokens")
             lllm_logger.warning(
