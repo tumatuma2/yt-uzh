@@ -1,4 +1,4 @@
-# Technical report — `project name`
+# Technical report — YT-APERTUS-RSD
 
 A deeper write-up than the README: what you built, how it works, and what the
 numbers say. Also check the specific submission requirements for your Academia
