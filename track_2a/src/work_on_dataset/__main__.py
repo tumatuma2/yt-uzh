@@ -1,20 +1,21 @@
-
-import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, asdict
+import random, json
 from typing import Literal
-import json, random, logging
-from pathlib import Path
 from my_folders import RESULTS_PATH
-from my_lllm import lllm_logger
 from .llm_functions import process_side, llm_functions_init, HoleScoreResult
-from .validation_dataset import get_validation_dataset
+from .validation_dataset import get_validation_dataset, get_test_dataset
 import dotenv
 
 import argparse
 ap = argparse.ArgumentParser()
 ap.add_argument('--seed', default='1B3C5D7E9FA1B2C3', help='Seed to use for random picks')
+ap.add_argument('--limit', default=10, help='Number of entries in the dataset to process')
+ap.add_argument('--test', action='store_true', help='Run on test split')
 ap_data = ap.parse_args()
+
+TASK_LIMIT = ap_data.limit
+RUN_ON_TEST = ap_data.test
 
 RNG_SEED = ap_data.seed
 seeded_rand = random.Random(bytes.fromhex(RNG_SEED))
@@ -28,7 +29,7 @@ class EntrySideResult:
     side: Literal['A', 'B']
     result: list[HoleScoreResult]
 
-dataset = get_validation_dataset()
+dataset = get_test_dataset() if RUN_ON_TEST else get_validation_dataset()
 seeded_rand.shuffle(dataset)
 
 def process_entry_side(entry, side):
@@ -39,10 +40,10 @@ all_tasks = [
     for entry in dataset
     for side in ('A', 'B')
 ]
+if TASK_LIMIT > 0:
+    all_tasks = all_tasks[:TASK_LIMIT]
 
-lllm_logger.setLevel(logging.ERROR)
-
-with (RESULTS_PATH / 'result_on_validation.jsonl').open('w', encoding='utf-8') as fp:
+with (RESULTS_PATH / ('result_on_test.jsonl' if RUN_ON_TEST else 'result_on_validation.jsonl')).open('w', encoding='utf-8') as fp:
     with ThreadPoolExecutor(max_workers=20) as executor:
         futures = [
             executor.submit(task)
