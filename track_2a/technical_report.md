@@ -168,10 +168,6 @@ No other specific hardware requirement is present, uses internet connection to d
 
 Raw results will be saved in `results/result_on_test.jsonl` with the values for statistics according to `src/work_on_dataset:EntrySideResult` structure one per line.
 
-
-What a judge needs to get your numbers back: hardware, runtime, seeds, and the
-exact commit. `make run` should do the rest.
-
 ## 8. Next steps
 
 1. Test the framework on SwissGov-RSD;

@@ -10,7 +10,7 @@ run:
 indocker_run_on_fedlex_sample:
 	cd src && uv run run_on_fedlex_sample.py $(if $(SEED),--seed $(SEED))
 indocker_run:
-	cd src && uv run -m work_on_dataset --test
+	cd src && uv run -m work_on_dataset --test && uv run generate_plots.py
 
 ### Diagrams
 
