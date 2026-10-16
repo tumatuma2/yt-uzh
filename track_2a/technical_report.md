@@ -36,7 +36,7 @@ how consent was obtained.
 
 At this stage the framework does not use data for training. However, we decided to test it on a sample of statutory code provisions sampled from the Swiss civil code, in all languages included in the SwissGov-RSD dataset. Therefore we built records paired in IT-EN, DE-EN, FR-EN. Then we generated four tables, obtained from the articles sample, that per each record have a text in a language, and the correspondent in another language pair, splitted as prefix, middle (the text Apertus will generate), and a suffix. The generation is based on a seed id that we share in the following table: 
 
-| Destination language           | Seed   |
+| Table ID                       | Seed   |
 |--------------------------------|--------|
 | Table 1                        |        |
 | Table 2                        |        |
@@ -51,7 +51,20 @@ A. Fedlex data set
 
 We ran four independent Monte-Carlo simulations that randomly sampled same-meaning text pairs and estimated, for each source language, the average probability that a given token is the closest match when English is the target. Because the simulations are independent draws from the same distribution, we simply averaged these per-simulation probability estimates; the resulting mean probability for each source language (German, French, Italian) provides a stable ranking of which language pairs most strongly with English, with French emerging as the strongest on average.
 
+| Destination language           | T1     | T2     | T3     | T4     | 
+|--------------------------------|--------|--------|--------|--------|
+| FR                             | 2      |2       | 1      | 1      |
+| DE                             | 1      |3       | 2      | 3      |
+| IT                             | 3      |1       | 3      | 2      |
+
 On the same four tables we run Monte-Carlo simulations, investigating the following: Does log-probability vary depending on how far into the text the missing token appears? This analysis investigates whether the Apertus generated log-probability changes according to the relative position of the missing token within the target text. The position is normalized by the total text length, allowing comparisons across texts of different lengths. Results show an increasing trend in mean log-probability from Q1 (-11.93) to Q4 (-8.80), suggesting that Apertus assigns higher probabilities to its predicted tokens when the missing span occurs later in the text.
+
+| Position Quartile              | Average Logprob                   |
+|--------------------------------|-----------------------------------|
+| Q1                             | -11.93                            |
+| Q2                             | -10.60                            |
+| Q3                             | -10.13                            |
+| Q4                             | -8.80                             |
 
 B. SwissGov-RSD
 
